@@ -73,7 +73,7 @@ while True:
     ret, frame = video_capture.read()
 
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    gray = cv2.GaussianBlur(gray, (21, 21), 0)
+    gray = cv2.GaussianBlur(gray, (41, 41), 0)
     if thresh is None:
         thresh = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, \
                                        cv2.THRESH_BINARY, 51, 2)
@@ -81,8 +81,10 @@ while True:
         height = len(thresh[0])
         sq = min(width,height)
         crop = thresh[width // 2 - sq // 2:width // 2 + sq // 2, height // 2 - sq // 2:height // 2 + sq // 2]
+        crop = thresh[width // 2 - sq // 2:width // 2 + sq // 2, height // 2 - sq // 2:height // 2 + sq // 2]
+        crop = cv2.GaussianBlur(crop, (41, 21), 0)
+        img = imutils.resize(crop, width=8, height=8)
 
-    img = imutils.resize(thresh, width=8,height=8)
 
     k = cv2.waitKey(1)
     if k % 256 == 27:  # ESC Pressed
@@ -96,6 +98,7 @@ while True:
         sq = min(width,height)
 
         crop = thresh[width // 2 - sq // 2:width // 2 + sq // 2,height // 2 - sq // 2:height // 2 + sq // 2]
+        crop = cv2.GaussianBlur(crop, (41, 21), 0)
         img = imutils.resize(crop, width=8, height=8)
         prediction = classifier.predict(np.array([img.flatten()]))
         print(prediction)
@@ -105,6 +108,9 @@ while True:
     cv2.imshow('gray', crop)
     cv2.imshow('thresh', thresh)
 
+    cv2.namedWindow('img', cv2.WINDOW_NORMAL)
+    cv2.resizeWindow('img', 600, 600)
+    cv2.imshow('img', img)
 
 # When everything is done, release the capture
 video_capture.release()
